@@ -35,6 +35,7 @@ namespace SchoolScheduleProj_Lib
             firstName = "";
             lastName = "";
         }
+
         /**
         * Student(firstName, lastName)
         *
