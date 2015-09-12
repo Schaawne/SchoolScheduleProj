@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SchoolScheduleProj_Lib;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SchoolScheduleProj.Tests
 {
@@ -14,7 +14,7 @@ namespace SchoolScheduleProj.Tests
     public class SchoolScheduleProj_Lib_Tests
     {
         /** The Student List */
-        private IStudentList m_studentList = null;
+        private static IStudentList m_studentList = null;
 
         /**
         * InitializeTests
@@ -23,11 +23,12 @@ namespace SchoolScheduleProj.Tests
         * Creates common objects for SchoolScheduleProj_Lib_Tests
         */
         [ClassInitialize]
-        public void InitializeTests()
+        public static void InitializeTests(TestContext context)
         {
             //Create new Student List if one doesn't exist yet
             if(null == m_studentList)
             {
+                //Populate m_studentList with StudentDictionary
                 m_studentList = new StudentDictionary();
             }
         }
@@ -57,10 +58,17 @@ namespace SchoolScheduleProj.Tests
             //Create a new Student and add it to the list.
             Student testStudent = new Student("John", "Doe");
             Assert.IsTrue(m_studentList.AddStudent(testStudent));
+            
+            //Confirm Student was added
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent.name));
 
             //Create a second, different Student and add them to the list.
             Student testStudent2 = new Student("Jane", "Doe");
             Assert.IsTrue(m_studentList.AddStudent(testStudent2));
+
+            //Confirm 2nd Student was added
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent2.name));
+            Assert.AreEqual<UIntPtr>((UIntPtr) 2, m_studentList.size);
 
             /** Failure End Condition 1 - Student was already in list */
             //Create another new Student with same name as existing
@@ -97,9 +105,7 @@ namespace SchoolScheduleProj.Tests
             Assert.IsTrue(m_studentList.AddStudent(testStudent));
 
             //Confirm Student is in list
-            List<Student> students = m_studentList.GetStudents();
-            Assert.IsNotNull(students);
-            students.Exists(s => s.name.Equals(testStudent.name));
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent.name));
 
             //Remove the desired Student
             Assert.IsTrue(m_studentList.RemoveStudent(testStudent));

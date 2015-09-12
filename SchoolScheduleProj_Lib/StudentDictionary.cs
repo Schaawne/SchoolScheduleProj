@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +15,11 @@ namespace SchoolScheduleProj_Lib
         /** Size property from IStudentList */
         public UIntPtr size
         {
-            get;
-            private set;
+            get
+            {
+                //return current size of the Dictionary
+                return (UIntPtr) studentList.Count;
+            }
         }
 
         /**
@@ -25,7 +29,7 @@ namespace SchoolScheduleProj_Lib
         */
         public StudentDictionary()
         {
-            studentList = new Dictionary<string, Student>();
+            studentList = new Dictionary<String, Student>();
         }
 
         /**
@@ -35,17 +39,45 @@ namespace SchoolScheduleProj_Lib
         */
         public bool AddStudent(Student newStudent)
         {
-            return false;
+            bool returnVal = false;
+
+            //Check that both portions of name are populated
+            if ((0 < newStudent.firstName.Length) && (0 < newStudent.lastName.Length))
+            {
+                //Confirm Student isn't already in Dictionary
+                if (!studentList.ContainsKey(newStudent.name))
+                {
+                    //Add the Student to dictionary
+                    try
+                    {
+                        studentList.Add(newStudent.name, newStudent);
+                        returnVal = true;
+                    }
+                    catch (Exception e)
+                    {
+                        //Handle exceptions?
+                        Debug.WriteLine(e);
+                    }
+                }
+            }
+
+            return returnVal;
         }
 
         /**
-        * RemoveStudent(oldStudent)
+        * GetStudent(studentName)
         *
-        * Remove Student matching provided Student from the Dictionary.
+        * Get Student from Dictionary by Name
         */
-        public bool RemoveStudent(Student oldStudent)
+        public Student GetStudent(String studentName)
         {
-            return false;
+            Student foundStudent = null;
+
+            //Attempt to get the Student by name
+            studentList.TryGetValue(studentName, out foundStudent);
+            
+            //foundStudent is either still null or now contains the student found
+            return foundStudent;
         }
 
         /**
@@ -55,7 +87,10 @@ namespace SchoolScheduleProj_Lib
         */
         public bool EmptyList()
         {
-            return false;
+            //Clear the Dictionary
+            studentList.Clear();
+
+            return true;
         }
 
         /**
@@ -65,7 +100,34 @@ namespace SchoolScheduleProj_Lib
         */
         public List<Student> GetStudents()
         {
-            return null;
+            try
+            {
+                return studentList.Values.ToList();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
+        }
+
+        /**
+        * RemoveStudent(oldStudent)
+        *
+        * Remove Student matching provided Student from the Dictionary.
+        */
+        public bool RemoveStudent(Student oldStudent)
+        {
+            bool returnVal = false;
+
+            //Check that both portions of name are populated
+            if ((0 < oldStudent.firstName.Length) && (0 < oldStudent.lastName.Length))
+            {
+                //Confirm Student is already in Dictionary
+                returnVal = studentList.Remove(oldStudent.name);
+            }
+
+            return returnVal;
         }
     }
 }
