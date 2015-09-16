@@ -11,7 +11,7 @@ namespace SchoolScheduleProj.Tests
     * Test Class for SchoolScheduleProj_Lib Use Cases
     */
     [TestClass]
-    public class SchoolScheduleProj_Lib_UseCases
+    public class UseCasesTests
     {
         /** The Student List */
         private static IStudentList m_studentList = null;
