@@ -6,24 +6,24 @@ using System.Threading.Tasks;
 
 namespace SchoolScheduleProj_Lib
 {
-    public class Student
+    public class Student : IPerson
     {
         /** Student's first name */
-        public String firstName
+        public String FirstName
         {
             get;
             set;
         }
 
         /** Student's last name */
-        public String lastName
+        public String LastName
         {
             get;
             set;
         }
 
         /** Student's full name */
-        public String name => firstName + " " + lastName;
+        public String Name => FirstName + " " + LastName;
 
         /**
         * Student()
@@ -32,19 +32,19 @@ namespace SchoolScheduleProj_Lib
         */
         public Student()
         {
-            firstName = "";
-            lastName = "";
+            FirstName = "";
+            LastName = "";
         }
 
         /**
-        * Student(firstName, lastName)
+        * Student(FirstName, LastName)
         *
         * Student full name constructor
         */
         public Student(String firstName, String lastName)
         {
-            this.firstName = firstName;
-            this.lastName = lastName;
+            this.FirstName = firstName;
+            this.LastName = lastName;
         }
     }
 }

@@ -42,15 +42,15 @@ namespace SchoolScheduleProj_Lib
             bool returnVal = false;
 
             //Check that both portions of name are populated
-            if ((0 < newStudent.firstName.Length) && (0 < newStudent.lastName.Length))
+            if ((0 < newStudent.FirstName.Length) && (0 < newStudent.LastName.Length))
             {
                 //Confirm Student isn't already in Dictionary
-                if (!studentList.ContainsKey(newStudent.name))
+                if (!studentList.ContainsKey(newStudent.Name))
                 {
                     //Add the Student to dictionary
                     try
                     {
-                        studentList.Add(newStudent.name, newStudent);
+                        studentList.Add(newStudent.Name, newStudent);
                         returnVal = true;
                     }
                     catch (Exception e)
@@ -121,10 +121,10 @@ namespace SchoolScheduleProj_Lib
             bool returnVal = false;
 
             //Check that both portions of name are populated
-            if ((0 < oldStudent.firstName.Length) && (0 < oldStudent.lastName.Length))
+            if ((0 < oldStudent.FirstName.Length) && (0 < oldStudent.LastName.Length))
             {
                 //Confirm Student is already in Dictionary
-                returnVal = studentList.Remove(oldStudent.name);
+                returnVal = studentList.Remove(oldStudent.Name);
             }
 
             return returnVal;

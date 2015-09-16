@@ -6,12 +6,12 @@ using System.Diagnostics;
 namespace SchoolScheduleProj.Tests
 {
     /**
-    * SchoolScheduleProj_Lib_Tests
+    * SchoolScheduleProj_Lib Use Case Tests
     *
-    * Test Class for SchoolScheduleProj_Lib
+    * Test Class for SchoolScheduleProj_Lib Use Cases
     */
     [TestClass]
-    public class SchoolScheduleProj_Lib_Tests
+    public class SchoolScheduleProj_Lib_UseCases
     {
         /** The Student List */
         private static IStudentList m_studentList = null;
@@ -60,14 +60,14 @@ namespace SchoolScheduleProj.Tests
             Assert.IsTrue(m_studentList.AddStudent(testStudent));
             
             //Confirm Student was added
-            Assert.IsNotNull(m_studentList.GetStudent(testStudent.name));
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent.Name));
 
             //Create a second, different Student and add them to the list.
             Student testStudent2 = new Student("Jane", "Doe");
             Assert.IsTrue(m_studentList.AddStudent(testStudent2));
 
             //Confirm 2nd Student was added
-            Assert.IsNotNull(m_studentList.GetStudent(testStudent2.name));
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent2.Name));
             Assert.AreEqual<UIntPtr>((UIntPtr) 2, m_studentList.size);
 
             /** Failure End Condition 1 - Student was already in list */
@@ -81,12 +81,12 @@ namespace SchoolScheduleProj.Tests
             Assert.IsFalse(m_studentList.AddStudent(testStudent4));
 
             //Pass empty first name
-            testStudent4.lastName = "Lewis";
+            testStudent4.LastName = "Lewis";
             Assert.IsFalse(m_studentList.AddStudent(testStudent4));
 
             //Pass empty last name
-            testStudent4.firstName = "Lucky";
-            testStudent4.lastName = "";
+            testStudent4.FirstName = "Lucky";
+            testStudent4.LastName = "";
             Assert.IsFalse(m_studentList.AddStudent(testStudent4));
         }
 
@@ -105,7 +105,7 @@ namespace SchoolScheduleProj.Tests
             Assert.IsTrue(m_studentList.AddStudent(testStudent));
 
             //Confirm Student is in list
-            Assert.IsNotNull(m_studentList.GetStudent(testStudent.name));
+            Assert.IsNotNull(m_studentList.GetStudent(testStudent.Name));
 
             //Remove the desired Student
             Assert.IsTrue(m_studentList.RemoveStudent(testStudent));
@@ -127,12 +127,12 @@ namespace SchoolScheduleProj.Tests
             Assert.IsFalse(m_studentList.RemoveStudent(testStudent3));
 
             //Pass empty first name
-            testStudent3.lastName = "Doe";
+            testStudent3.LastName = "Doe";
             Assert.IsFalse(m_studentList.RemoveStudent(testStudent3));
 
             //Pass empty last name
-            testStudent3.firstName = "John";
-            testStudent3.lastName = "";
+            testStudent3.FirstName = "John";
+            testStudent3.LastName = "";
             Assert.IsFalse(m_studentList.AddStudent(testStudent3));
         }
     }
