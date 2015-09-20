@@ -56,15 +56,23 @@ namespace SchoolScheduleProj_Lib
             this.Minute = minute;
         }
 
-        /** Implement subtraction of TimeHHMM objects */
+        /** Implement subtraction from TimeHHMM objects */
         public static TimeSpan operator -(TimeHHMM lhs, TimeHHMM rhs)
         {
             //Check for nulls
-            if((null == lhs) || (null == rhs))
+            if((null == (object) lhs) || (null == (object) rhs))
             {
                 return new TimeSpan();
             }
             return new TimeSpan(lhs.Hour - rhs.Hour, lhs.Minute - rhs.Minute, 0);
+        }
+        public static TimeHHMM operator -(TimeHHMM lhs, int subtractMinutes)
+        {
+            return (lhs + (-1 * subtractMinutes));
+        }
+        public static TimeHHMM operator -(TimeHHMM lhs, TimeSpan rhs)
+        {
+            return (lhs - (int)rhs.TotalMinutes);
         }
 
         /** Implement addition to TimeHHMM objects */
@@ -73,7 +81,6 @@ namespace SchoolScheduleProj_Lib
             //Use overload for minutes offset
             return (lhs + (int)rhs.TotalMinutes);
         }
-
         public static TimeHHMM operator +(TimeHHMM lhs, int addMinutes)
         {
             //Start with left-hand-side time object
@@ -126,13 +133,126 @@ namespace SchoolScheduleProj_Lib
         public bool Equals(TimeHHMM rhs)
         {
             //Check for null
-            if(null == rhs)
+            if(null == (object) rhs)
             {
                 return false;
             }
 
             //Equal if hour and minute are equal
             return ((Hour == rhs.Hour) && (Minute == rhs.Minute));
+        }
+
+        /**
+        *<summary>
+        *Override  ==/!= operators
+        *</summary>
+        */
+        public static bool operator ==(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check for null
+            if((null == (object) lhs) || (null == (object) rhs))
+            {
+                return false;
+            }
+
+            //Use Equals()
+            return lhs.Equals(rhs);
+        }
+        public static bool operator !=(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check for null
+            if((null == (object) lhs) || (null == (object) rhs))
+            {
+                return false;
+            }
+
+            //Use Equals()
+            return !lhs.Equals(rhs);
+        }
+
+        /**
+        *<summary>
+        *Override gt/lt operators
+        *</summary>
+        */
+        public static bool operator >(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check hour
+            if(lhs.Hour > rhs.Hour)
+            {
+                return true;
+            }
+
+            //Check minute
+            if((lhs.Hour == rhs.Hour) && (lhs.Minute > rhs.Minute))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        public static bool operator <(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check hour
+            if (lhs.Hour < rhs.Hour)
+            {
+                return true;
+            }
+
+            //Check minute
+            if ((lhs.Hour == rhs.Hour) && (lhs.Minute < rhs.Minute))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+        *<summary>
+        *Override ge/le operators
+        *</summary>
+        */
+        public static bool operator >=(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check equality
+            if(lhs == rhs)
+            {
+                return true;
+            }
+
+            //Check gt
+            return (lhs > rhs);
+        }
+        public static bool operator <=(TimeHHMM lhs, TimeHHMM rhs)
+        {
+            //Check equality
+            if(lhs == rhs)
+            {
+                return true;
+            }
+
+            //Check lt
+            return (lhs < rhs);
+        }
+
+        /**
+        *<summary>
+        *Calculates hash code for TimeHHMM
+        *</summary>
+        */
+        public override int GetHashCode()
+        {
+            int hashSeed = "TimeHHMM".GetHashCode(); //Use class name as seed hash code
+            int hashGain = hashSeed / 2; //Use seed/2 as gain
+            int hash;
+
+            //Calculate hash code = seed + sum(code * gain + propertyHashCode)
+            hash = hashSeed;
+            hash = hash * hashGain + Hour.GetHashCode();
+            hash = hash * hashGain + Minute.GetHashCode();
+
+            return hash;
         }
     }
 }

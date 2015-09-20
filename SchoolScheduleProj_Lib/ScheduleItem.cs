@@ -46,9 +46,8 @@ namespace SchoolScheduleProj_Lib
         */
         public ScheduleItem(String itemName)
         {
-            ItemName = itemName;
-            StartTime = new TimeHHMM(0, 0);
-            EndTime = new TimeHHMM(0, 0);
+            //Use constructor helper
+            constructorHelper(itemName, new TimeHHMM(0, 0), new TimeHHMM(0, 0));
         }
 
         /**
@@ -58,9 +57,8 @@ namespace SchoolScheduleProj_Lib
         */
         public ScheduleItem(String itemName, int startHour, int startMinute, int endHour, int endMinute)
         {
-            ItemName = itemName;
-            StartTime = new TimeHHMM(startHour, startMinute);
-            EndTime = new TimeHHMM(endHour, endMinute);
+            //Use constructor helper
+            constructorHelper(itemName, new TimeHHMM(startHour, startMinute), new TimeHHMM(endHour, endMinute));
         }
 
         /**
@@ -70,9 +68,8 @@ namespace SchoolScheduleProj_Lib
         */
         public ScheduleItem(String itemName, TimeHHMM startTime, TimeHHMM endTime)
         {
-            ItemName = itemName;
-            StartTime = startTime;
-            EndTime = endTime;
+            //Use construtor helper
+            constructorHelper(itemName, startTime, endTime);
         }
 
         /**
@@ -83,13 +80,13 @@ namespace SchoolScheduleProj_Lib
         public ScheduleItem(String itemName, int startHour, int startMinute, int duration)
         {
             int durationHours, durationMinutes;
-
-            ItemName = itemName;
-            StartTime = new TimeHHMM(startHour, startMinute);
+            TimeHHMM startTime = new TimeHHMM(startHour, startMinute);
 
             durationMinutes = duration % 60;
             durationHours = (duration - durationMinutes) / 60;
-            EndTime = StartTime + new TimeSpan(durationHours, durationMinutes, 0); //Ignoring seconds
+
+            //Use constructor helper
+            constructorHelper(itemName, startTime, startTime + new TimeSpan(durationHours, durationMinutes, 0));
         }
 
         /**
@@ -101,12 +98,69 @@ namespace SchoolScheduleProj_Lib
         {
             int durationHours, durationMinutes;
 
-            ItemName = itemName;
-            StartTime = startTime;
-
             durationMinutes = duration % 60;
             durationHours = (duration - durationMinutes) / 60;
-            EndTime = StartTime + new TimeSpan(durationHours, durationMinutes, 0); //Ignoring seconds
+
+            //Use constructor helper
+            constructorHelper(itemName, startTime, startTime + new TimeSpan(durationHours, durationMinutes, 0));
+        }
+
+        /**
+        *<summary>
+        * Initializes name, start time, and end time
+        *</summary>
+        */
+        private void constructorHelper(string itemName, TimeHHMM startTime, TimeHHMM endTime)
+        {
+            ItemName = itemName;
+            StartTime = startTime;
+            EndTime = endTime;
+        }
+
+        /**
+        *<summary>
+        * Checks if two ScheduleItems conflict
+        *</summary>
+        */
+        public bool ConflictsWith(ScheduleItem item2)
+        {
+            //Check for null
+            if(null == (object) item2)
+            {
+                return false;
+            }
+
+            //Check that start time
+            if(item2.StartTime >= EndTime)
+            {
+                return false;
+            }
+            if(item2.StartTime >= StartTime)
+            {
+                return true;
+            }
+
+            //Check that end time out of range
+            if(item2.EndTime <= StartTime)
+            {
+                return false;
+            }
+            if(item2.EndTime <= EndTime)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+        *<summary>
+        *ToString Override
+        *</summary>
+        */
+        public override string ToString()
+        {
+            return String.Format("%s(%s - %s)", ItemName, StartTime.ToString(), EndTime.ToString());
         }
     }
 }

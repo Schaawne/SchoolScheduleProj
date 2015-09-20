@@ -26,7 +26,7 @@ namespace SchoolScheduleProj.Tests
         public static void InitializeTests(TestContext context)
         {
             //Create new Student List if one doesn't exist yet
-            if(null == m_studentList)
+            if(null == (object) m_studentList)
             {
                 //Populate m_studentList with StudentDictionary
                 m_studentList = new StudentDictionary();

@@ -141,19 +141,29 @@ namespace SchoolScheduleProj.Tests
             double length = Math.Abs(hour1 - hour2) * 60.0 + (minute1 - minute2);
             TimeHHMM time1 = new TimeHHMM(hour1, minute1);
             TimeHHMM time2 = new TimeHHMM(hour2, minute2);
-            TimeSpan timeDiff;
+            TimeHHMM time3;
+            TimeSpan timeDiffResult;
+            TimeSpan time12Diff = new TimeSpan(12, 0, 0);
 
             /** Nominal subtraction */
-            timeDiff = time1 - time2;
-            Assert.AreEqual<double>(length, timeDiff.TotalMinutes);
+            timeDiffResult = time1 - time2;
+            Assert.AreEqual<double>(length, timeDiffResult.TotalMinutes);
+
+            time3 = time1 - (int)time12Diff.TotalMinutes;
+            Assert.AreEqual<int>(time2.Hour, time3.Hour);
+            Assert.AreEqual<int>(time2.Minute, time3.Minute);
+
+            time3 = time1 - time12Diff;
+            Assert.AreEqual<int>(time2.Hour, time3.Hour);
+            Assert.AreEqual<int>(time2.Minute, time3.Minute);
 
             /** Reverse subtraction */
-            timeDiff = time2 - time1;
-            Assert.AreEqual<double>(-1.0 * length, timeDiff.TotalMinutes);
+            timeDiffResult = time2 - time1;
+            Assert.AreEqual<double>(-1.0 * length, timeDiffResult.TotalMinutes);
 
             /** Identical subtraction */
-            timeDiff = time1 - time1;
-            Assert.AreEqual<double>(0.0, timeDiff.TotalMinutes);
+            timeDiffResult = time1 - time1;
+            Assert.AreEqual<double>(0.0, timeDiffResult.TotalMinutes);
         }
 
         /**
@@ -180,6 +190,68 @@ namespace SchoolScheduleProj.Tests
             TimeHHMM theNewTime3 = theTestStart + 35;
             Assert.AreEqual<int>(9, theNewTime3.Hour);
             Assert.AreEqual<int>(35, theNewTime3.Minute);
+        }
+
+        /**
+        * T006_TimeHHMM
+        *
+        * Test equality comparisons
+        */
+        [TestCategory("CI"), TestMethod]
+        public void T006_TimeHHMM_Equality()
+        {
+            //TimeHHMM objects for test
+            TimeHHMM time1 = new TimeHHMM(8, 30);
+            TimeHHMM time2 = new TimeHHMM(8, 30);
+            TimeHHMM time3 = new TimeHHMM(9, 0);
+            TimeSpan span = new TimeSpan();
+
+            //Equals()
+            Assert.IsTrue(time1.Equals(time2));
+            Assert.IsFalse(time1.Equals(time3));
+            Assert.IsFalse(time1.Equals(span));
+
+            //== operator
+            Assert.IsTrue(time1 == time2);
+            Assert.IsFalse(time1 == time3);
+
+            //!= operator
+            Assert.IsTrue(time1 != time3);
+            Assert.IsFalse(time1 != time2);
+        }
+
+        /**
+        * T007_TimeHHMM
+        *
+        * Test comparison operators
+        */
+        [TestCategory("CI"), TestMethod]
+        public void T007_TimeHHMM_Comparison()
+        {
+            //TimeHHMM objects for test
+            TimeHHMM time1 = new TimeHHMM(8, 30);
+            TimeHHMM time2 = new TimeHHMM(8, 30);
+            TimeHHMM time3 = new TimeHHMM(9, 0);
+
+            //less-than comparisons
+            Assert.IsTrue(time1 < time3);
+            Assert.IsFalse(time1 < time2);
+            Assert.IsFalse(time3 < time1);
+
+            //greater-than comparisons
+            Assert.IsTrue(time3 > time1);
+            Assert.IsFalse(time1 > time2);
+            Assert.IsFalse(time1 > time3);
+
+            //less-than-equal-to comparisons
+            Assert.IsTrue(time1 <= time3);
+            Assert.IsTrue(time1 <= time2);
+            Assert.IsFalse(time3 <= time1);
+
+            //greater-than-equal-to comparisons
+            Assert.IsTrue(time3 >= time1);
+            Assert.IsTrue(time1 >= time2);
+            Assert.IsFalse(time1 >= time3);
         }
     }
 }

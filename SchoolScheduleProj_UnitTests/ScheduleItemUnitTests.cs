@@ -72,5 +72,31 @@ namespace SchoolScheduleProj.Tests
             Assert.AreEqual<string>(itemName, theDetailItem4.ItemName);
             Assert.AreEqual<int>(duration, theDetailItem4.Duration);
         }
+
+        /**
+        * T002_ScheduleItem
+        *
+        * Test ScheduleItem ConflictsWith()
+        */
+        [TestCategory("CI"), TestMethod]
+        public void T002_ScheduleItem_ConflictsWith()
+        {
+            bool result = false;
+
+            //ScheduleItems for Test
+            ScheduleItem item1 = new ScheduleItem("Item1", new TimeHHMM(8, 30), 30);
+            ScheduleItem item2 = new ScheduleItem("Item2", new TimeHHMM(8, 45), 30);
+            ScheduleItem item3 = new ScheduleItem("Item3", new TimeHHMM(9, 0), 30);
+
+            //No Conflict
+            result = item1.ConflictsWith(item3);
+            Assert.IsFalse(result);
+            result = item1.ConflictsWith(null);
+            Assert.IsFalse(result);
+
+            //Conflict
+            result = item1.ConflictsWith(item2);
+            Assert.IsTrue(result);
+        }
     }
 }
