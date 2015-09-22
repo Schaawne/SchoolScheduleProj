@@ -155,12 +155,159 @@ namespace SchoolScheduleProj_Lib
 
         /**
         *<summary>
+        * Checks if ScheduleItem  conflicts with TimeHHMM as a start time
+        *</summary>
+        */
+        public bool ConflictsWithStart(TimeHHMM time)
+        {
+
+            //Check null
+            if(null == (object)time)
+            {
+                return false;
+            }
+
+            //Check if time is within bounds of this ScheduleItem (incl, excl)
+            if((time >= StartTime) && (time < EndTime))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+        *<summary>
+        * Checks if ScheduleItem  conflicts with TimeHHMM as an end time
+        *</summary>
+        */
+        public bool ConflictsWithEnd(TimeHHMM time)
+        {
+
+            //Check null
+            if (null == (object)time)
+            {
+                return false;
+            }
+
+            //Check if time is within bounds of this ScheduleItem (excl, incl)
+            if ((time > StartTime) && (time <= EndTime))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+        *<summary>
+        *Reschedule to new start time
+        *</summary>
+        */
+        public bool Reschedule(TimeHHMM newStartTime)
+        {
+            int duration = Duration;
+
+            //Check for null
+            if(null == (object)newStartTime)
+            {
+                return false;
+            }
+
+            //Update start time
+            StartTime = newStartTime;
+
+            //Update end time, preserving duration
+            EndTime = StartTime + duration;
+
+            return true;
+        }
+
+        /**
+        *<summary>
         *ToString Override
         *</summary>
         */
         public override string ToString()
         {
             return String.Format("%s(%s - %s)", ItemName, StartTime.ToString(), EndTime.ToString());
+        }
+
+        /**
+        *<summary>
+        *Equals Overrides
+        *</summary>
+        */
+        public override bool Equals(object obj)
+        {
+            //Check for null
+            if (null == obj)
+            {
+                return false;
+            }
+
+            //Check type and use class Equals()
+            ScheduleItem rhs = obj as ScheduleItem;
+            return Equals(rhs);
+        }
+        public bool Equals(ScheduleItem rhs)
+        {
+            //Check for null
+            if (null == (object)rhs)
+            {
+                return false;
+            }
+
+            //Equal if name, startTime, and endTime are equal
+            return ((ItemName == rhs.ItemName) && (StartTime == rhs.StartTime) && (EndTime == rhs.EndTime));
+        }
+
+        /**
+        *<summary>
+        *Override  ==/!= operators
+        *</summary>
+        */
+        public static bool operator ==(ScheduleItem lhs, ScheduleItem rhs)
+        {
+            //Check for null
+            if ((null == (object)lhs) || (null == (object)rhs))
+            {
+                return false;
+            }
+
+            //Use Equals()
+            return lhs.Equals(rhs);
+        }
+        public static bool operator !=(ScheduleItem lhs, ScheduleItem rhs)
+        {
+            //Check for null
+            if ((null == (object)lhs) || (null == (object)rhs))
+            {
+                return false;
+            }
+
+            //Use Equals()
+            return !lhs.Equals(rhs);
+        }
+
+        /**
+        *<summary>
+        *Calculates hash code for ScheduleItem
+        *</summary>
+        */
+        public override int GetHashCode()
+        {
+            int hashSeed = "ScheduleItem".GetHashCode(); //Use class name as seed hash code
+            int hashGain = hashSeed / 2; //Use seed/2 as gain
+            int hash;
+
+            //Calculate hash code = seed + sum(code * gain + propertyHashCode)
+            hash = hashSeed;
+            hash = hash * hashGain + ItemName.GetHashCode();
+            hash = hash * hashGain + StartTime.GetHashCode();
+            hash = hash * hashGain + EndTime.GetHashCode();
+
+            return hash;
         }
     }
 }

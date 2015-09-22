@@ -159,11 +159,26 @@ namespace SchoolScheduleProj.Tests
 
             /** Reverse subtraction */
             timeDiffResult = time2 - time1;
-            Assert.AreEqual<double>(-1.0 * length, timeDiffResult.TotalMinutes);
+            Assert.AreEqual<double>(length, timeDiffResult.TotalMinutes);
 
             /** Identical subtraction */
             timeDiffResult = time1 - time1;
             Assert.AreEqual<double>(0.0, timeDiffResult.TotalMinutes);
+
+            /** Crossing day barrier */
+            TimeHHMM midnight = new TimeHHMM(0, 0);
+            TimeHHMM elevenThirtyPM = new TimeHHMM(23, 30);
+
+            timeDiffResult = midnight - elevenThirtyPM;
+            Assert.AreEqual<double>(30.0, timeDiffResult.TotalMinutes);
+
+            time3 = midnight - 30;
+            Assert.AreEqual<int>(elevenThirtyPM.Hour, time3.Hour);
+            Assert.AreEqual<int>(elevenThirtyPM.Minute, time3.Minute);
+
+            time3 = midnight - new TimeSpan(0, 30, 0);
+            Assert.AreEqual<int>(elevenThirtyPM.Hour, time3.Hour);
+            Assert.AreEqual<int>(elevenThirtyPM.Minute, time3.Minute);
         }
 
         /**

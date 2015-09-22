@@ -60,14 +60,16 @@ namespace SchoolScheduleProj_UnitTests
             //Student object
             Student nominalTestStudent = new Student("John", "Doe");
             Student failTestStudent = new Student("Jane", "Doe");
-            Student overlapTestStudent = new Student("Steve", "Doe");
+            Student scheduleConflictStudent = new Student("Steve", "Doe");
+            Student nameConflictStudent = new Student("Sally", "Doe");
             //Class names
             String[] classNames =
             {
                 "Homeroom",
                 "Reading",
                 "Math",
-                "Social Studies"
+                "Social Studies",
+                "Recess"
             };
             //Class start times Tuples
             Tuple<int, int>[] startTimes =
@@ -75,7 +77,8 @@ namespace SchoolScheduleProj_UnitTests
                 new Tuple<int, int>( 8,  0),
                 new Tuple<int, int>( 9,  0),
                 new Tuple<int, int>( 9, 55),
-                new Tuple<int, int>(10, 40)
+                new Tuple<int, int>(10, 40),
+                new Tuple<int, int>(11, 30)
             };
             //Class start time TimeHHMM
             TimeHHMM[] classStartTimes =
@@ -83,15 +86,17 @@ namespace SchoolScheduleProj_UnitTests
                 new TimeHHMM(startTimes[0].Item1, startTimes[0].Item2),
                 new TimeHHMM(startTimes[1].Item1, startTimes[1].Item2),
                 new TimeHHMM(startTimes[2].Item1, startTimes[2].Item2),
-                new TimeHHMM(startTimes[3].Item1, startTimes[3].Item2)
+                new TimeHHMM(startTimes[3].Item1, startTimes[3].Item2),
+                new TimeHHMM(startTimes[4].Item1, startTimes[4].Item2)
             };
             //Class end times Tuples
-            Tuple<int, int>[] endTimes   =
+            Tuple<int, int>[] endTimes =
             {
                 new Tuple<int, int>( 8, 50),
                 new Tuple<int, int>( 9, 45),
                 new Tuple<int, int>(10, 30),
-                new Tuple<int, int>(11, 30)
+                new Tuple<int, int>(11, 30),
+                new Tuple<int, int>(12, 15)
             };
             //Class end time TimeHHMM
             TimeHHMM[] classEndTimes =
@@ -99,7 +104,8 @@ namespace SchoolScheduleProj_UnitTests
                 new TimeHHMM(endTimes[0].Item1, endTimes[0].Item2),
                 new TimeHHMM(endTimes[1].Item1, endTimes[1].Item2),
                 new TimeHHMM(endTimes[2].Item1, endTimes[2].Item2),
-                new TimeHHMM(endTimes[3].Item1, endTimes[3].Item2)
+                new TimeHHMM(endTimes[3].Item1, endTimes[3].Item2),
+                new TimeHHMM(endTimes[4].Item1, endTimes[4].Item2)
             };
 
             /** Nominal AddClass() Scenarios */
@@ -113,6 +119,9 @@ namespace SchoolScheduleProj_UnitTests
             Assert.IsTrue(result);
 
             result = nominalTestStudent.AddClass(classNames[3], classStartTimes[3], 50);
+            Assert.IsTrue(result);
+
+            result = nominalTestStudent.AddClass(new ScheduleItem(classNames[4], classStartTimes[4], classEndTimes[4]));
             Assert.IsTrue(result);
 
             /** Failure AddClass() Scenarios */
@@ -162,13 +171,123 @@ namespace SchoolScheduleProj_UnitTests
             result = failTestStudent.AddClass(classNames[3], classStartTimes[3], 0);
             Assert.IsFalse(result);
 
-            /** Overlapping classes failure */
-            result = overlapTestStudent.AddClass(classNames[0], classStartTimes[0], classEndTimes[0]); //Add first class
+            result = failTestStudent.AddClass(null);
+            Assert.IsFalse(result);
+
+            /** Schedule conflict failure */
+            TimeHHMM overlappingStart = classStartTimes[0] - 15;
+            TimeHHMM overlappingEnd = classEndTimes[0] - 15;
+
+            result = scheduleConflictStudent.AddClass(classNames[0], classStartTimes[0], classEndTimes[0]); //Add first class
             Assert.IsTrue(result);
-            result = overlapTestStudent.AddClass("WillFailClass", classEndTimes[0] - 15, 30); //Overlap first class end by 15m
+
+            //Overlap start of class by 15m
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingStart, classEndTimes[0]);
             Assert.IsFalse(result);
-            result = overlapTestStudent.AddClass("WillFailClass", classStartTimes[0] - 15, 30); //Overlap first class start by 15m
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingStart.Hour, overlappingStart.Minute, 30);
             Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingStart.Hour, overlappingStart.Minute, endTimes[0].Item1, endTimes[0].Item2);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingStart, 30);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass(new ScheduleItem("WillFailClass", overlappingStart, 30));
+            Assert.IsFalse(result);
+
+            //Overlap end of class by 15m
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingEnd, classEndTimes[0]);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingEnd.Hour, overlappingEnd.Minute, 15);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingEnd.Hour, overlappingEnd.Minute, endTimes[0].Item1, endTimes[0].Item2);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass("WillFailClass", overlappingEnd, 15);
+            Assert.IsFalse(result);
+            result = scheduleConflictStudent.AddClass(new ScheduleItem("WillFailClass", overlappingEnd, 15));
+            Assert.IsFalse(result);
+
+            /** Name conflict failure */
+            ScheduleItem duplicateClass = new ScheduleItem(classNames[0], classEndTimes[0] + 30, 30);
+
+            //Add valid class to schedule
+            result = nameConflictStudent.AddClass(classNames[0], classStartTimes[0], classEndTimes[0]);
+            Assert.IsTrue(result);
+
+            //Try to add duplicate class (same name, different time)
+            result = nameConflictStudent.AddClass(duplicateClass);
+            Assert.IsFalse(result);
+        }
+
+        /**
+        *<summary>
+        * T003_Student - GetClass
+        *</summary>
+        */
+        [TestCategory("CI"), TestMethod]
+        public void T003_Student_GetClass()
+        {
+            bool result = false;
+
+            /** Classes for test */
+            ScheduleItem class1 = new ScheduleItem("Class1", new TimeHHMM(8, 30), 30);
+            ScheduleItem class2 = new ScheduleItem("Class2", new TimeHHMM(9, 30), 30);
+            ScheduleItem foundClass;
+            /** Student for test */
+            Student testStudent = new Student("Jane", "Doe");
+
+            //Build basic, valid schedule
+            result = testStudent.AddClass(class1);
+            Assert.IsTrue(result);
+            result = testStudent.AddClass(class2);
+            Assert.IsTrue(result);
+            Assert.AreEqual<int>(2, testStudent.StudentSchedule.Count);
+
+            //Nominal GetClass
+            foundClass = testStudent.GetClass(class1.ItemName);
+            Assert.AreEqual<ScheduleItem>(class1, foundClass);
+            foundClass = testStudent.GetClass(class2.ItemName);
+            Assert.AreEqual<ScheduleItem>(class2, foundClass);
+
+            //Failed GetClass
+            foundClass = testStudent.GetClass("Class3");
+            Assert.AreEqual<object>(null, (object)foundClass);
+        }
+
+        /**
+        *<summary>
+        * T004_Student - Reschedule
+        *</summary>
+        */
+        [TestCategory("CI"), TestMethod]
+        public void T004_Student_Reschedule()
+        {
+            bool result = false;
+
+            //Classes for test
+            ScheduleItem class1 = new ScheduleItem("Class1", new TimeHHMM(8, 30), 30);
+            ScheduleItem class2 = new ScheduleItem("Class2", new TimeHHMM(9, 30), 30);
+            ScheduleItem class2moved = new ScheduleItem("Class2", new TimeHHMM(12, 30), 30); 
+            //Student for test
+            Student testStudent = new Student("Jane", "Doe");
+
+            //Build basic, valid schedule
+            result = testStudent.AddClass(class1);
+            Assert.IsTrue(result);
+            result = testStudent.AddClass(class2);
+            Assert.IsTrue(result);
+            Assert.AreEqual<int>(2, testStudent.StudentSchedule.Count);
+
+            /** Nominal reschedule */
+            result = testStudent.Reschedule(class2.ItemName, new TimeHHMM(12, 30));
+            Assert.IsTrue(result);
+            Assert.AreEqual<int>(2, testStudent.StudentSchedule.Count); //Still only 2 classes in schedule
+
+            /** Conflict reschedule */
+            result = testStudent.Reschedule(class2.ItemName, new TimeHHMM(8, 45));
+            Assert.IsFalse(result);
+            result = testStudent.GetClass(class1.ItemName) == class1;
+            Assert.IsTrue(result); //Class1 hasn't moved
+            result = testStudent.GetClass(class2moved.ItemName) == class2moved;
+            Assert.IsTrue(result); //Class2 is still in modified location
         }
     }
 }

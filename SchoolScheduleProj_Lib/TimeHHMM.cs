@@ -59,12 +59,26 @@ namespace SchoolScheduleProj_Lib
         /** Implement subtraction from TimeHHMM objects */
         public static TimeSpan operator -(TimeHHMM lhs, TimeHHMM rhs)
         {
+            TimeSpan lhsTS, rhsTS, returnTS;
+
             //Check for nulls
             if((null == (object) lhs) || (null == (object) rhs))
             {
                 return new TimeSpan();
             }
-            return new TimeSpan(lhs.Hour - rhs.Hour, lhs.Minute - rhs.Minute, 0);
+
+            //Represent operands as TimeSpans from midnight
+            lhsTS = new TimeSpan(lhs.Hour, lhs.Minute, 0);
+            rhsTS = new TimeSpan(rhs.Hour, rhs.Minute, 0);
+            returnTS = lhsTS - rhsTS;
+
+            //TimeHHMM subtraction represents time span from rhs to lhs (always positive)
+            if(0.0 > returnTS.TotalMinutes)
+            {
+                returnTS += new TimeSpan(24, 0, 0); //Wrap by 24h
+            }
+
+            return returnTS;
         }
         public static TimeHHMM operator -(TimeHHMM lhs, int subtractMinutes)
         {
@@ -83,32 +97,33 @@ namespace SchoolScheduleProj_Lib
         }
         public static TimeHHMM operator +(TimeHHMM lhs, int addMinutes)
         {
-            //Start with left-hand-side time object
-            int returnHour = lhs.Hour;
-            int totalMinutes = lhs.Minute + addMinutes;
-            int returnMinutes = 0;
+            TimeSpan lhsTS, rhsTS, sumTS;
 
-            //Check for future hours wrap
-            if (0 <= totalMinutes)
+            //Check for null
+            if(null == (object)lhs)
             {
-                returnMinutes = totalMinutes % 60; //Get remainder minutes
-                returnHour += (totalMinutes - returnMinutes) / 60; //Offset hours
+                return new TimeHHMM(0, 0);
             }
-            else //past hours wrap
-            {
-                returnMinutes = totalMinutes % -60; //Get remainder (negative) minutes
-                returnHour -= (totalMinutes - returnMinutes) / -60; //Offset hours
 
-                //Handle negative minutes
-                if (0 > returnMinutes)
-                {
-                    returnMinutes += 60; //Offset to positive equivalent
-                    returnHour--;  //Offset another hour
-                }
+            //Represent operands as TimeSpans from midnight
+            lhsTS = new TimeSpan(lhs.Hour, lhs.Minute, 0);
+            rhsTS = new TimeSpan(0, addMinutes, 0);
+            sumTS = lhsTS + rhsTS;
+
+            //Check for wrap forward across midnight
+            if(24.0 <= sumTS.TotalHours)
+            {
+                sumTS -= new TimeSpan(24, 0, 0);
+            }
+
+            //Check for wrap backwards aross midnight
+            if(0.0 > sumTS.TotalHours)
+            {
+                sumTS += new TimeSpan(24, 0, 0);
             }
 
             //Return new TimeHHMM object
-            return new TimeHHMM(returnHour, returnMinutes);
+            return new TimeHHMM(sumTS.Hours, sumTS.Minutes);
         }
 
         /** ToString() override */

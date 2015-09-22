@@ -8,8 +8,15 @@ namespace SchoolScheduleProj_Lib
 {
     public class Student : IPerson
     {
-        /** Schedule as Dictionary */
+        /** Schedule as List */
         private List<ScheduleItem> studentSchedule;
+        public List<ScheduleItem> StudentSchedule
+        {
+            get
+            {
+                return studentSchedule;
+            }
+        }
 
         /** Student's first name */
         public String FirstName
@@ -96,6 +103,12 @@ namespace SchoolScheduleProj_Lib
                 return false;
             }
 
+            //Check that new class isn't same name as any existing
+            if (nameConflict(newClass))
+            {
+                return false;
+            }
+
             //Add class to schedule
             studentSchedule.Add(newClass);
             return true;
@@ -139,6 +152,12 @@ namespace SchoolScheduleProj_Lib
                 return false;
             }
 
+            //Check that new class isn't same name as any existing
+            if (nameConflict(newClass))
+            {
+                return false;
+            }
+
             //Add class to schedule
             studentSchedule.Add(newClass);
             return true;
@@ -172,6 +191,12 @@ namespace SchoolScheduleProj_Lib
             //Check that new class doesn't conflict with any existing
             ScheduleItem newClass = new ScheduleItem(className, startTime, endTime);
             if (scheduleConflict(newClass))
+            {
+                return false;
+            }
+
+            //Check that new class isn't same name as any existing
+            if (nameConflict(newClass))
             {
                 return false;
             }
@@ -213,6 +238,12 @@ namespace SchoolScheduleProj_Lib
                 return false;
             }
 
+            //Check that new class isn't same name as any existing
+            if (nameConflict(newClass))
+            {
+                return false;
+            }
+
             //Add class to schedule
             studentSchedule.Add(newClass);
             return true;
@@ -220,12 +251,121 @@ namespace SchoolScheduleProj_Lib
 
         /**
         *<summary>
-        *Schedule conflict helper
+        *With ScheduleItem
+        *</summary>
+        */
+        public bool AddClass(ScheduleItem newClass)
+        {
+            //Validate newClass
+            if(null == (object)newClass)
+            {
+                return false;
+            }
+
+            //Check that new class doesnt conflict with any existing
+            if(scheduleConflict(newClass))
+            {
+                return false;
+            }
+
+            //Check that new class isn't same name as any existing
+            if(nameConflict(newClass))
+            {
+                return false;
+            }
+
+            //Add class to schedule
+            studentSchedule.Add(newClass);
+            return true;
+        }
+
+        /**
+        *<summary>
+        *Schedule conflict helper (ScheduleItems conflict with ScheduleItems)
         *</summary>
         */
         private bool scheduleConflict(ScheduleItem newClass)
         {
-            return (null != studentSchedule.Find(x => x.ConflictsWith(newClass)));
+            return (null != (object)studentSchedule.Find(x => x.ConflictsWith(newClass)));
+        }
+
+        /**
+        *<summary>
+        *Schedule conflict helper (ScheduleItems conflict with TimeHHMM as start time)
+        *</summary>
+        */
+        private bool scheduleConflictStart(TimeHHMM time)
+        {
+            return (null != (object)studentSchedule.Find(x => x.ConflictsWithStart(time)));
+        }
+
+        /**
+        *<summary>
+        *Schedule conflict helper (ScheduleItems conflict with TimeHHMM as end time)
+        *</summary>
+        */
+        private bool scheduleConflictEnd(TimeHHMM time)
+        {
+            return (null != (object)studentSchedule.Find(x => x.ConflictsWithEnd(time)));
+        }
+
+        /**
+        *<summary>
+        *Name conflict helper
+        *</summary>
+        */
+        private bool nameConflict(ScheduleItem newClass)
+        {
+            return (null != (object)studentSchedule.Find(x => x.ItemName.Equals(newClass.ItemName)));
+        }
+
+        /**
+        *<summary>
+        *Get Class by name
+        *</summary>
+        */
+        public ScheduleItem GetClass(string name)
+        {
+            return studentSchedule.Find(x => x.ItemName.Equals(name));
+        }
+
+        /**
+        *<summary>
+        *Reschedules a class to a new start time
+        *</summary>
+        */
+        public bool Reschedule(string className, TimeHHMM newStartTime)
+        {
+            ScheduleItem foundClass;
+
+            //Check null
+            if(null == (object) newStartTime)
+            {
+                return false;
+            }
+
+            //Retrieve named class
+            foundClass = GetClass(className);
+
+            //Check that Class was found
+            if (null == (object)foundClass)
+            {
+                return false;
+            }
+
+            //Check that new start time doesn't conflict with any existing
+            if(scheduleConflictStart(newStartTime))
+            {
+                return false;
+            }
+
+            //Check that new end time doesn't conflict with any existing
+            if (scheduleConflictEnd(newStartTime + foundClass.Duration))
+            {
+                return false;
+            }
+
+            return foundClass.Reschedule(newStartTime);
         }
 
         /**
